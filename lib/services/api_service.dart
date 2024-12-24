@@ -39,4 +39,49 @@ class ApiService {
       throw Exception(error);
     }
   }
+
+  // Function to raise a complaint
+  Future<void> raiseComplaint({
+    required String token,
+    required String subject,
+    required String description,
+    required String category,
+    required String location,
+    required DateTime dateOfIncident,
+    bool isAnonymous = false,
+  }) async {
+    try {
+      // Create the request body
+      final Map<String, dynamic> requestBody = {
+        "subject": subject,
+        "description": description,
+        "category": category,
+        "location": location,
+        "dateOfIncident": dateOfIncident.toIso8601String(),
+        "isAnonymous": isAnonymous,
+      };
+
+      // Send the POST request
+      final response = await http.post(
+        Uri.parse('$baseUrl/complaint/raiseComplaint'),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      // Check the response status
+      if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        print("Complaint raised successfully: ${responseData['complaint']}");
+      } else {
+        print("Failed to raise complaint: ${response.body}");
+        throw Exception("Error: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("An error occurred while raising the complaint: $error");
+      throw Exception("Failed to raise complaint");
+    }
+  }
 }
