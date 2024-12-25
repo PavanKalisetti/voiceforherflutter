@@ -46,6 +46,7 @@ class _RaiseComplaintScreenState extends State<RaiseComplaintScreen> {
           location: _locationController.text,
           dateOfIncident: _selectedDate!,
           isAnonymous: _isAnonymous,
+          status: false,
         );
 
         await ComplaintService().raiseComplaint(
@@ -63,6 +64,11 @@ class _RaiseComplaintScreenState extends State<RaiseComplaintScreen> {
             backgroundColor: Colors.green,
           ),
         );
+        Navigator.of(context).pop();
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => RaiseComplaintScreen()),
+        // );
       } catch (error) {
         setState(() {
           _isLoading = false;

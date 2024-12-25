@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:voiceforher/screens/girl_user/raiseComplaint.dart';
 import '../../models/complaint_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -103,6 +104,7 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
       appBar: AppBar(
         title: const Text("Complaints"),
         backgroundColor: Colors.deepPurpleAccent,
+        foregroundColor: Colors.white,
       ),
       body: FutureBuilder<List<Complaint>>(
         future: _complaintsFuture,
@@ -136,6 +138,10 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 elevation: 3,
                 child: ListTile(
+                  leading: CircleAvatar(
+                    radius: 5,
+                    backgroundColor: complaint.status ? Colors.green : Colors.red, // Dot color based on status
+                  ),
                   title: Text(
                     complaint.subject,
                     style: const TextStyle(
@@ -162,10 +168,27 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
                   onTap: () => _showComplaintDetails(complaint),
                 ),
               );
+
             },
           );
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => RaiseComplaintScreen()),
+          ).then((_) {
+            // Refetch complaints after returning from RaiseComplaintScreen
+            setState(() {
+              _complaintsFuture = _fetchComplaints();
+            });
+          });
+        },
+        backgroundColor: Colors.deepPurpleAccent,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+
     );
   }
 }

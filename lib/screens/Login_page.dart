@@ -48,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', user.token);
+      await prefs.setString('email', _emailController.text);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(user.message), backgroundColor: Colors.green),

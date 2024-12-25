@@ -4,6 +4,9 @@ import 'package:voiceforher/screens/girl_user/raiseComplaint.dart';
 import 'package:voiceforher/screens/girl_user/requesting_help.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ComplaintScreen.dart';
+import '../ProfileScreen.dart';
+import 'ChatBoxScreen.dart';
+import 'EmergencyContactsPage.dart';
 import 'awarenessPage.dart';
 import 'counselling.dart';
 
@@ -23,6 +26,12 @@ class _HomescreenState extends State<Homescreen> {
   int _currentIndex = 0;
   late final List<Widget> _pages;
   late final List<BottomNavigationBarItem> _navItems;
+  late final token;
+
+  // void getToken() async{
+  //   final prefs = await SharedPreferences.getInstance();
+  //   token = prefs.getString('token');
+  // }
 
 
   @override
@@ -32,10 +41,12 @@ class _HomescreenState extends State<Homescreen> {
 
 
 
+
+
     // Define pages and navigation items using dummy data
     if (widget.isAuthority) {
       _pages = [
-        ComplaintsScreen(),
+        ComplaintListScreen(),
         ProfilesPage(),
         ChatScreen(),
         ProfileScreen(),
@@ -259,7 +270,7 @@ class HomePage extends StatelessWidget {
 
                       SizedBox(height: 16),
                       _buildRectangularButton(context, Icons.report, 'Complaint Box', ComplaintListScreen()),
-                      _buildRectangularButton(context, Icons.contacts, 'Emergency Contacts', RaiseComplaintScreen()),
+                      _buildRectangularButton(context, Icons.contacts, 'Emergency Contacts', EmergencyContactsPage()),
                     ],
                   ),
                 ),
@@ -335,15 +346,15 @@ class HomePage extends StatelessWidget {
 }
 
 
-class AddContactsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Add Contacts', style: TextStyle(color: Colors.white)), backgroundColor: Colors.deepPurpleAccent),
-      body: Center(child: Text('Add Contacts Page', style: TextStyle(color: Colors.deepPurpleAccent))),
-    );
-  }
-}
+// class AddContactsPage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text('Add Contacts', style: TextStyle(color: Colors.white)), backgroundColor: Colors.deepPurpleAccent),
+//       body: Center(child: Text('Add Contacts Page', style: TextStyle(color: Colors.deepPurpleAccent))),
+//     );
+//   }
+// }
 
 
 // VideoSlider Component
@@ -457,12 +468,7 @@ class _VideoSliderState extends State<VideoSlider> {
 
 
 // Dummy screen placeholders
-class ComplaintsScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Complaints Screen')));
-  }
-}
+
 
 class ProfilesPage extends StatelessWidget {
   @override
@@ -471,19 +477,14 @@ class ProfilesPage extends StatelessWidget {
   }
 }
 
-class ChatScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Chat Screen')));
-  }
-}
 
-class ProfileScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Profile Screen')));
-  }
-}
+
+// class ProfileScreen extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(body: Center(child: Text('Profile Screen')));
+//   }
+// }
 
 class NotificationsInApp extends StatelessWidget {
   @override
