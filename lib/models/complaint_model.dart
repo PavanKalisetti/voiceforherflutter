@@ -5,7 +5,8 @@ class Complaint {
   final String location;
   final DateTime dateOfIncident;
   final bool isAnonymous;
-  final bool status; // Add this field
+  final bool status;
+  final String? email; // Add email field
 
   Complaint({
     required this.subject,
@@ -14,7 +15,8 @@ class Complaint {
     required this.location,
     required this.dateOfIncident,
     this.isAnonymous = false,
-    required this.status, // Mark as required
+    required this.status,
+    this.email, // Add email as optional
   });
 
   // Convert Complaint object to a map for API requests
@@ -26,7 +28,8 @@ class Complaint {
       "location": location,
       "dateOfIncident": dateOfIncident.toIso8601String(),
       "isAnonymous": isAnonymous,
-      "status": status, // Include status
+      "status": status,
+      "email": email, // Include email
     };
   }
 
@@ -38,7 +41,8 @@ class Complaint {
       location: json['location'],
       dateOfIncident: DateTime.parse(json['dateOfIncident']),
       isAnonymous: json['isAnonymous'],
-      status: json['status'], // Parse status from JSON
+      status: json['status'],
+      email: json['email'], // Parse email from JSON
     );
   }
 }

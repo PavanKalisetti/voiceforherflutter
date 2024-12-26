@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:voiceforher/models/UserProfileModel.dart';
+
+import '../models/UserProfileModel.dart';
 import '../services/UserService.dart';
 import 'Login_page.dart'; // Replace with your actual login screen import
 
@@ -39,8 +40,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _confirmLogout(BuildContext context) {
     showDialog(
+
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text("Confirm Logout"),
         content: const Text("Are you sure you want to log out?"),
         actions: [
@@ -71,22 +74,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Profile"),
-        backgroundColor: Colors.indigo,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => _confirmLogout(context),
+      // appBar: AppBar(
+      //   title: const Text("Profile"),
+      //   backgroundColor: Colors.indigo,
+      //   foregroundColor: Colors.white,
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.logout),
+      //       onPressed: () => _confirmLogout(context),
+      //     ),
+      //   ],
+      // ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: SafeArea(
+          top: false,
+          child: AppBar(
+            flexibleSpace: ClipPath(
+              clipper: CurvedAppBarClipper(),
+              child: Container(
+                color: Colors.deepPurpleAccent,
+              ),
+            ),
+            title: const Text(
+              'Profile',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            centerTitle: true,
+            backgroundColor: Colors.transparent,
+            iconTheme: const IconThemeData(color: Colors.white),
+            elevation: 0,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () => _confirmLogout(context),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       body: FutureBuilder<UserProfileModel>(
         future: userProfile,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: Colors.deepPurpleAccent,));
           } else if (snapshot.hasError) {
             return Center(
               child: Text(
@@ -150,6 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildDetailsCard(UserProfileModel user, Size size) {
     return Card(
+      color: Colors.white,
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
@@ -173,8 +209,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+
           Flexible(
             child: Text(
+
               title,
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: size.width * 0.04),
             ),
@@ -193,6 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildEmergencyContacts(List<EmergencyContact> contacts, String title, Size size) {
     return Card(
+      color: Colors.white,
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
@@ -206,7 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             SizedBox(height: size.height * 0.01),
             ...contacts.map((e) => ListTile(
-              leading: Icon(Icons.contact_phone, color: Colors.indigo, size: size.width * 0.05),
+              leading: Icon(Icons.contact_phone, color: Colors.deepPurpleAccent, size: size.width * 0.05),
               title: Text(e.name, style: TextStyle(fontSize: size.width * 0.04)),
               subtitle: Text(
                 "${e.phone} (${e.relation})",
@@ -218,4 +257,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+}
+
+class CurvedAppBarClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 30);
+    path.quadraticBezierTo(size.width / 2, size.height, size.width, size.height - 30);
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

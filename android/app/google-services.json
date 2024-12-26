@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "824750606617",
+    "project_id": "voiceforherflutter",
+    "storage_bucket": "voiceforherflutter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:824750606617:android:14cd4108be14bfa7aa1d88",
+        "android_client_info": {
+          "package_name": "com.voiceforher.org.voiceforher"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAzGtoSaZAc4h4AvPJsqNxJQfsrqQt8UM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

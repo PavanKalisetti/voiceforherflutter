@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:voiceforher/screens/authority/AllUserProfiles.dart';
+import 'package:voiceforher/screens/girl_user/file_upload_screen.dart';
 import 'package:voiceforher/screens/girl_user/raiseComplaint.dart';
 import 'package:voiceforher/screens/girl_user/requesting_help.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -156,133 +157,164 @@ class _HomescreenState extends State<Homescreen> {
     );
   }
 }
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
 
-class HomePage extends StatelessWidget {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
 
-  final List<Map<String, String>> videos = [
-    {
-      'title': 'Safety Tips for Women',
-      'thumbnail': 'https://www.goaid.in/wp-content/uploads/2024/05/Womens-Safety-in-India.png',
-    },
-    {
-      'title': 'Self-Defense Techniques',
-      'thumbnail': 'https://static.wixstatic.com/media/ff1c35_13ea0865e8854ff5ae11a8df5ed74724~mv2.jpg/v1/fill/w_568,h_318,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/ff1c35_13ea0865e8854ff5ae11a8df5ed74724~mv2.jpg',
-    },
-    {
-      'title': 'Recognizing Dangerous Situations',
-      'thumbnail': 'https://cdn.educba.com/academy/wp-content/uploads/2023/12/Safety-of-Women-in-India.jpg',
-    },
-    {
-      'title': 'Safety Tips for Women',
-      'thumbnail': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAsYjRK7fvrUT3636STrYYGj5aGn5P8FNDjg&s',
-    },
-    {
-      'title': 'Self-Defense Techniques',
-      'thumbnail': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTSLGPnytG-Y7GfTrYsaeR_onl3PewbCffeg&s',
-    },
-    {
-      'title': 'Recognizing Dangerous Situations',
-      'thumbnail': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-1pGyLusrPyi-NgYxsdioIrpLTlUCsYuTQg&s',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
 
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(begin: 1.0, end: 1.2).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(top: 50),
-        child: Center(
-          child: Container(
-            color: Colors.deepPurple.shade50,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Horizontal Scroll Section
-                // Enhanced Slider
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: VideoSlider(videos: videos),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final textScaleFactor = MediaQuery.of(context).textScaleFactor;
 
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_)=> EmergencyHelpScreen()),
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: SafeArea(
+          top: false,
+          child: AppBar(
+            flexibleSpace: ClipPath(
+              clipper: CurvedAppBarClipper(),
+              child: Container(
+                color: Colors.deepPurpleAccent,
+              ),
+            ),
+            title: const Text(
+              'Welcome',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            centerTitle: true,
+            backgroundColor: Colors.transparent,
+            iconTheme: const IconThemeData(color: Colors.white),
+            elevation: 0,
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(height: screenHeight * 0.03),
+            Center(
+              child: Column(
+                children: [
+                  Container(
+                    height: screenHeight * 0.2,
+                    width: screenHeight * 0.2,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.red.withOpacity(0.6),
+                    ),
+                    child: Center(
+                      child: AnimatedBuilder(
+                        animation: _animation,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: _animation.value,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => EmergencyHelpScreen(),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: CircleBorder(),
+                                backgroundColor: Colors.red,
+                                padding: EdgeInsets.all(screenHeight * 0.05),
+                              ),
+                              child: Icon(
+                                Icons.warning_rounded,
+                                size: screenHeight * 0.08,
+                                color: Colors.white,
+                              ),
+                            ),
                           );
                         },
-                        child: Icon(
-                          Icons.warning_rounded,
-                          size: 80,
-                          color: Colors.white,
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          shape: CircleBorder(),
-                          backgroundColor: Colors.red,
-                          padding: EdgeInsets.all(30),
-                        ),
                       ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Emergency Needed?',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent),
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Not Sure What to do?',
-                        style: TextStyle(fontSize: 18, color: Colors.deepPurpleAccent),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Padding(
-                      //   padding: const EdgeInsets.all(16.0),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      //     children: [
-                      //       _buildCircularButton(context, Icons.location_on, 'Safe Zone', MapScreen()),
-                      //       _buildCircularButton(context, Icons.group, 'She Mate', MapScreen()),
-                      //       _buildCircularButton(context, Icons.map, 'Safe Pathways', MapScreen()),
-                      //     ],
-                      //   ),
-                      // ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildCircularButton(context, Icons.location_on,
-                                'Awareness', AwarenessPage()),
-                            _buildCircularButton(context, Icons.group,
-                                'Counselling', CounsellingHomePage()),
-
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 16),
-                      _buildRectangularButton(context, Icons.report, 'Complaint Box', ComplaintListScreen()),
-                      _buildRectangularButton(context, Icons.contacts, 'Emergency Contacts', EmergencyContactsPage()),
-                    ],
+                  SizedBox(height: screenHeight * 0.03),
+                  Text(
+                    'Emergency Needed?',
+                    style: TextStyle(
+                      fontSize: screenHeight * 0.025 * textScaleFactor,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurpleAccent,
+                    ),
                   ),
-                ),
-              ],
+                  SizedBox(height: screenHeight * 0.01),
+                  Text(
+                    'Not Sure What to do?',
+                    style: TextStyle(
+                      fontSize: screenHeight * 0.02 * textScaleFactor,
+                      color: Colors.deepPurpleAccent,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+            SizedBox(height: screenHeight * 0.03),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                int crossAxisCount = screenWidth > 600 ? 3 : 2;
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
+                  child: GridView.count(
+                    shrinkWrap: true,
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 15,
+                    mainAxisSpacing: 15,
+                    physics: NeverScrollableScrollPhysics(),
+                    children: [
+                      _buildCircularButton(context, Icons.location_on, 'Awareness',
+                          AwarenessPage(), screenHeight, textScaleFactor),
+                      _buildCircularButton(context, Icons.group, 'Counselling',
+                          CounsellingPage(), screenHeight, textScaleFactor),
+                      _buildCircularButton(context, Icons.report, 'Complaints',
+                          ComplaintListScreen(), screenHeight, textScaleFactor),
+                      _buildCircularButton(context, Icons.contacts, 'Contacts',
+                          EmergencyContactsScreen(), screenHeight, textScaleFactor),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
   }
-  Widget _buildCircularButton(BuildContext context, IconData icon, String label, Widget page) {
+
+  Widget _buildCircularButton(BuildContext context, IconData icon, String label,
+      Widget page, double screenHeight, double textScaleFactor) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -291,183 +323,49 @@ class HomePage extends StatelessWidget {
         );
       },
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
-            radius: 40,
-            backgroundColor: Colors.deepPurpleAccent, // Consistent color
+            radius: screenHeight * 0.07,
+            backgroundColor: Colors.deepPurpleAccent,
             child: Icon(
               icon,
               color: Colors.white,
-              size: 30,
+              size: screenHeight * 0.05,
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: screenHeight * 0.005),
           Text(
             label,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent),
+            style: TextStyle(
+              fontSize: screenHeight * 0.02 * textScaleFactor,
+              fontWeight: FontWeight.bold,
+              color: Colors.deepPurpleAccent,
+            ),
           ),
         ],
       ),
     );
   }
-
-  Widget _buildRectangularButton(BuildContext context, IconData icon, String label, Widget page) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => page),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.deepPurpleAccent, // Adjusted for consistency
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.white, size: 30),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 
-// class AddContactsPage extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Add Contacts', style: TextStyle(color: Colors.white)), backgroundColor: Colors.deepPurpleAccent),
-//       body: Center(child: Text('Add Contacts Page', style: TextStyle(color: Colors.deepPurpleAccent))),
-//     );
-//   }
-// }
 
 
-// VideoSlider Component
-class VideoSlider extends StatefulWidget {
-  final List<Map<String, String>> videos;
-
-  VideoSlider({required this.videos});
+class CurvedAppBarClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 30);
+    path.quadraticBezierTo(size.width / 2, size.height, size.width, size.height - 30);
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
 
   @override
-  _VideoSliderState createState() => _VideoSliderState();
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
-class _VideoSliderState extends State<VideoSlider> {
-  int _currentPage = 0;
-  late PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController(viewportFraction: 0.85);
-
-    // Auto-slide every 3 seconds
-    Future.delayed(Duration(seconds: 3), _autoSlide);
-  }
-
-  void _autoSlide() {
-    if (_currentPage < widget.videos.length - 1) {
-      _currentPage++;
-    } else {
-      _currentPage = 0;  // Loop back to the first item
-    }
-    _pageController.animateToPage(
-      _currentPage,
-      duration: Duration(seconds: 1),
-      curve: Curves.easeInOut,
-    );
-    Future.delayed(Duration(seconds: 3), _autoSlide);  // Repeat after delay
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 180, // Adjust height for the slider
-      child: PageView.builder(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _currentPage = index;
-          });
-        },
-        itemCount: widget.videos.length,
-        itemBuilder: (context, index) {
-          final video = widget.videos[index];
-          return AnimatedContainer(
-            duration: Duration(milliseconds: 500),
-            curve: Curves.easeInOut,
-            margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: _currentPage == index ? 0 : 16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 8,
-                  offset: Offset(2, 2),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12.0),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network(
-                    video['thumbnail']!,
-                    fit: BoxFit.cover,
-                  ),
-                  Positioned(
-                    bottom: 10,
-                    left: 10,
-                    right: 10,
-                    child: Container(
-                      color: Colors.black.withOpacity(0.6),
-                      padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                      child: Text(
-                        video['title']!,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        maxLines: 1,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-
 // Dummy screen placeholders
 
 

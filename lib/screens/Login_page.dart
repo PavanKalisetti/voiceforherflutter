@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _emailController.text,
         _passwordController.text,
       );
-
+      if (!mounted) return; // Ensure the widget is still part of the widget tree
 
 
       final prefs = await SharedPreferences.getInstance();
@@ -57,7 +57,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(user.message), backgroundColor: Colors.green),
       );
-
       print('debug testing ${user.userType}')  ;
       bool isAuthority = false;
 
@@ -69,15 +68,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
       _navigateToHome(isAuthority);
     } catch (error) {
+      if (!mounted) return;
       String errorMsg = error.toString();
       print("debug testing $errorMsg");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error.toString()), backgroundColor: Colors.red),
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

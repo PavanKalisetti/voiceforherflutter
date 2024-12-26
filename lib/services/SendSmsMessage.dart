@@ -4,7 +4,7 @@ import 'package:flutter_background_messenger/flutter_background_messenger.dart';
 class SendSmsMessage {
   final messenger = FlutterBackgroundMessenger();
 
-  Future<void> sendSMSWithLocation() async {
+  Future<void> sendSMSWithLocation(List<Map<String, dynamic>> emergencyContacts) async {
     try {
       // Check and enable location services if disabled
       Position position = await _determinePosition();
@@ -15,7 +15,7 @@ class SendSmsMessage {
 
       // Send the SMS
       final success = await messenger.sendSMS(
-        phoneNumber: '+919390064463',
+        phoneNumber: emergencyContacts[0]['phone'],
         message: message,
       );
 

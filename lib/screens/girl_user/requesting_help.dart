@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 // import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:direct_call_plus/direct_call_plus.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../../services/SendSmsMessage.dart';
+import '../../utils/constants.dart';
 
 
 // void main() {
@@ -23,12 +27,57 @@ class EmergencyHelpScreen extends StatefulWidget {
 }
 
 class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
+  List<Map<String, dynamic>> emergencyContacts = [];
   int countdown = 5; // Start countdown from 5 seconds
   bool timerExpired = false;
+
+
+
+  Future<void> fetchEmergencyContacts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      showError("User not authenticated");
+      return;
+    }
+
+    String baseurl = Constants.baseUrl;
+
+    try {
+      final response = await http.get(
+        Uri.parse('$baseurl/profiles/profile/emergencyContacts'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      print('debug testing ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          emergencyContacts = List<Map<String, dynamic>>.from(data['data']["emergencyContacts"]);
+        });
+      } else {
+        showError("Failed to fetch contacts: ${response.body}");
+        print("Failed to fetch contacts: ${response.body}");
+      }
+    } catch (e) {
+      showError("Error fetching contacts: $e");
+      print("Error fetching contacts: $e");
+    }
+  }
+
+  void showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
 
   @override
   void initState() {
     super.initState();
+    fetchEmergencyContacts();
     startCountdown();
   }
 
@@ -41,7 +90,7 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
         timer.cancel();
         _callNumber(); // Make the call when timer expires
         SendSmsMessage s = new SendSmsMessage();
-        s.sendSMSWithLocation();
+        s.sendSMSWithLocation(emergencyContacts);
 
       } else {
         setState(() {
@@ -52,7 +101,7 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
   }
 
   Future<void> _callNumber() async {
-    const number = '9390064463';
+    var number = emergencyContacts[0]["phone"];
     bool? result = await DirectCallPlus.makeCall(number);
     if (!result!) {
       debugPrint('Call could not be initiated.');
