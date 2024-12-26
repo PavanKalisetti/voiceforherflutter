@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:voiceforher/screens/authority/AllUserProfiles.dart';
 import 'package:voiceforher/screens/girl_user/raiseComplaint.dart';
 import 'package:voiceforher/screens/girl_user/requesting_help.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,7 +48,7 @@ class _HomescreenState extends State<Homescreen> {
     if (widget.isAuthority) {
       _pages = [
         ComplaintListScreen(),
-        ProfilesPage(),
+        AllUserProfileScreen(),
         ChatScreen(),
         ProfileScreen(),
       ];

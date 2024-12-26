@@ -23,6 +23,8 @@ class ApiService {
 
   static Future<User> loginUser(String email, String password) async {
     final url = Uri.parse('$baseUrl/auth/login');
+    print('Attempting to log in user with email: $email');
+
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
@@ -32,13 +34,28 @@ class ApiService {
       }),
     );
 
+    print('Request sent to: $url');
+    print('Request headers: ${response.request?.headers}');
+    print('Request body: ${jsonEncode({"email": email, "password": password})}');
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
     if (response.statusCode == 200) {
+      print('Login successful. Parsing user data...');
       return User.fromJson(jsonDecode(response.body));
     } else {
-      final error = jsonDecode(response.body)['message'];
-      throw Exception(error);
+      print('Login failed with status: ${response.statusCode}');
+      try {
+        final error = jsonDecode(response.body)['message'];
+        print('Error message from server: $error');
+        throw Exception(error);
+      } catch (e) {
+        print('Error while decoding server response: $e');
+        throw Exception("Unexpected error occurred. Response: ${response.body}");
+      }
     }
   }
+
 
   // Function to raise a complaint
   Future<void> raiseComplaint({

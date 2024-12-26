@@ -33,14 +33,17 @@ class UserModel {
 class User {
   final String token;
   final String message;
+  final String userType;
 
-  User({required this.token, required this.message});
+  User({required this.token, required this.message, required this.userType});
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       token: json['token'],
       message: json['message'],
+      userType: json['userType'],
     );
   }
 }
+
 

@@ -27,8 +27,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _checkLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+    var isAuthority = false;
+    isAuthority = prefs.getBool('isAuthority')!;
     if (token != null) {
-      _navigateToHome();
+      _navigateToHome(isAuthority);
     }
   }
 
@@ -46,6 +48,8 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
 
+
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', user.token);
       await prefs.setString('email', _emailController.text);
@@ -54,7 +58,16 @@ class _LoginScreenState extends State<LoginScreen> {
         SnackBar(content: Text(user.message), backgroundColor: Colors.green),
       );
 
-      _navigateToHome();
+      print('debug testing ${user.userType}')  ;
+      bool isAuthority = false;
+
+      if(user.userType == "authority"){
+        isAuthority = true;
+      }
+      print('debug testing $isAuthority');
+      await prefs.setBool('isAuthority', isAuthority);
+
+      _navigateToHome(isAuthority);
     } catch (error) {
       String errorMsg = error.toString();
       print("debug testing $errorMsg");
@@ -68,10 +81,10 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _navigateToHome() {
-    Navigator.push(
+  void _navigateToHome(bool isAuthority) {
+    Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => Homescreen(isAuthority: false,)),
+      MaterialPageRoute(builder: (context) => Homescreen(isAuthority: isAuthority,)),
     );
   }
 
