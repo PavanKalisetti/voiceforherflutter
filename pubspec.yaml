@@ -62,6 +62,9 @@ dev_dependencies:
   dio:
   file_picker:
   provider:
+  flutter_background_service:
+  flutter_local_notifications:
+  android_intent_plus:
 #  flutter_phone_direct_caller:
 
 # For information on the generic Dart part of this file, see the

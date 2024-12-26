@@ -10,15 +10,6 @@ import 'package:http/http.dart' as http;
 import '../../services/SendSmsMessage.dart';
 import '../../utils/constants.dart';
 
-
-// void main() {
-//   runApp(MaterialApp(
-//     debugShowCheckedModeBanner: false,
-//     theme: ThemeData.light(),
-//     home: EmergencyHelpScreen(),
-//   ));
-// }
-
 class EmergencyHelpScreen extends StatefulWidget {
   const EmergencyHelpScreen({super.key});
 
@@ -30,8 +21,8 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
   List<Map<String, dynamic>> emergencyContacts = [];
   int countdown = 5; // Start countdown from 5 seconds
   bool timerExpired = false;
-
-
+  bool callPlaced = false; // Track if a call has already been placed
+  Timer? countdownTimer;
 
   Future<void> fetchEmergencyContacts() async {
     final prefs = await SharedPreferences.getInstance();
@@ -50,20 +41,17 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
         headers: {'Authorization': 'Bearer $token'},
       );
 
-      print('debug testing ${response.body}');
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          emergencyContacts = List<Map<String, dynamic>>.from(data['data']["emergencyContacts"]);
+          emergencyContacts = List<Map<String, dynamic>>.from(
+              data['data']["emergencyContacts"]);
         });
       } else {
         showError("Failed to fetch contacts: ${response.body}");
-        print("Failed to fetch contacts: ${response.body}");
       }
     } catch (e) {
       showError("Error fetching contacts: $e");
-      print("Error fetching contacts: $e");
     }
   }
 
@@ -73,25 +61,25 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
     );
   }
 
-
   @override
   void initState() {
     super.initState();
     fetchEmergencyContacts();
-    startCountdown();
+    if (!callPlaced) {
+      startCountdown();
+    }
   }
 
   void startCountdown() {
-    Timer.periodic(const Duration(seconds: 1), (timer) {
+    countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (countdown == 0) {
         setState(() {
           timerExpired = true;
         });
         timer.cancel();
-        _callNumber(); // Make the call when timer expires
-        SendSmsMessage s = new SendSmsMessage();
+        _callNumber();
+        SendSmsMessage s = SendSmsMessage();
         s.sendSMSWithLocation(emergencyContacts);
-
       } else {
         setState(() {
           countdown--;
@@ -100,18 +88,33 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
     });
   }
 
+  void stopCountdown() {
+    if (countdownTimer != null && countdownTimer!.isActive) {
+      countdownTimer!.cancel();
+    }
+    setState(() {
+      countdown = 0;
+    });
+  }
+
   Future<void> _callNumber() async {
+    if (emergencyContacts.isEmpty || callPlaced) return;
+
+    stopCountdown();
+
+    setState(() {
+      callPlaced = true; // Mark the call as placed
+      countdown = 0; // Set the timer to zero
+      timerExpired = true; // Update the UI to reflect timer expiry
+    });
+
     var number = emergencyContacts[0]["phone"];
     bool? result = await DirectCallPlus.makeCall(number);
-    if (!result!) {
+
+    if (result == null || !result) {
       debugPrint('Call could not be initiated.');
     }
   }
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -177,23 +180,21 @@ class _EmergencyHelpScreenState extends State<EmergencyHelpScreen> {
             // Cancel and Go Ahead Buttons
             ElevatedButton(
               onPressed: () {
-                setState(() {
-                  countdown = 5;
-                  timerExpired = false;
-                  startCountdown();
-                });
+                stopCountdown();
+                Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.purple,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               ),
               child: const Text('Cancel Request'),
             ),
             const SizedBox(height: 20),
             GestureDetector(
               onTap: () {
-                debugPrint('Go Ahead Pressed');
+                _callNumber();
               },
               child: Text(
                 'Go Ahead',

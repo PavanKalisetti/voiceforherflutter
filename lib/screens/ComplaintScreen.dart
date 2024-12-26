@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:voiceforher/utils/constants.dart';
 // import 'package:voiceforher/screens/girl_user/raiseComplaint.dart';
 import '../../models/complaint_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
+import 'package:http/http.dart' as http;
 
 import 'package:crypto/crypto.dart';
 
@@ -122,10 +123,34 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
               ],
             ),
           ),
-          if (!isAuthority)
+          if (!isAuthority && !complaint.status)
+
             TextButton(
-              onPressed: () {
-                // Handle edit/mark as solved action
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                final token = prefs.getString('token');
+                final response = await http.put(
+                  Uri.parse('${Constants.baseUrl}/complaint/complaints/${complaint.id}/mark-as-solved'),
+                  headers: {
+                    'Authorization': 'Bearer $token', // Include the user's token
+                    'Content-Type': 'application/json',
+                  },
+                );
+
+                print("debug testing ${response.body}");
+
+                if (response.statusCode == 200) {
+                  setState(() {
+                    complaint.status = true; // Update the local state
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Complaint marked as solved!')),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to mark complaint as solved')),
+                  );
+                }
               },
               child: const Row(
                 children: [
@@ -211,6 +236,8 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
       },
     );
   }
+
+
 
   @override
   Widget build(BuildContext context) {

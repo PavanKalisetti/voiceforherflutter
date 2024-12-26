@@ -1,40 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AwarenessPage extends StatelessWidget {
   final List<Map<String, String>> videos = [
     {
       'title': 'Safety Tips for Women',
-      'thumbnail': 'https://www.goaid.in/wp-content/uploads/2024/05/Womens-Safety-in-India.png',
+      'url': 'https://www.youtube.com/watch?v=q8MHurhUl5Q',
     },
     {
       'title': 'Self-Defense Techniques',
-      'thumbnail': 'https://static.wixstatic.com/media/ff1c35_13ea0865e8854ff5ae11a8df5ed74724~mv2.jpg/v1/fill/w_568,h_318,al_c,q_80,usm_0.66_1.00_0.01,enc_auto/ff1c35_13ea0865e8854ff5ae11a8df5ed74724~mv2.jpg',
+      'url': 'https://www.youtube.com/watch?v=RFO8rBIQQxM',
     },
     {
       'title': 'Recognizing Dangerous Situations',
-      'thumbnail': 'https://cdn.educba.com/academy/wp-content/uploads/2023/12/Safety-of-Women-in-India.jpg',
-    },
-    {
-      'title': 'Safety Tips for Women',
-      'thumbnail': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAsYjRK7fvrUT3636STrYYGj5aGn5P8FNDjg&s',
-    },
-    {
-      'title': 'Self-Defense Techniques',
-      'thumbnail': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTSLGPnytG-Y7GfTrYsaeR_onl3PewbCffeg&s'
-    },
-    {
-      'title': 'Recognizing Dangerous Situations',
-      'thumbnail': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-1pGyLusrPyi-NgYxsdioIrpLTlUCsYuTQg&s'
+      'url': 'https://www.youtube.com/watch?v=gWtuz-o45VQ',
     },
   ];
+
+  // Helper method to extract YouTube video ID and get thumbnail URL
+  String? getYouTubeThumbnail(String? videoUrl) {
+    if (videoUrl == null || videoUrl.isEmpty) return null;
+
+    try {
+      final uri = Uri.parse(videoUrl);
+      if (uri.queryParameters.containsKey('v')) {
+        final videoId = uri.queryParameters['v'];
+        return 'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
+      }
+    } catch (e) {
+      // Log or handle the error
+      debugPrint('Error parsing URL: $e');
+    }
+    return null; // Return null if video ID can't be found
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Awareness'),
+        title: Text('Awareness Videos', style: TextStyle(color: Colors.white)),
         centerTitle: true,
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.deepPurpleAccent,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -42,63 +49,53 @@ class AwarenessPage extends StatelessWidget {
           itemCount: videos.length,
           itemBuilder: (context, index) {
             final video = videos[index];
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Thumbnail
-                  ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-                    child: Image.network(
-                      video['thumbnail']!,
-                      height: 200,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  // Title and metadata
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          video['title']!,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+            final thumbnailUrl = getYouTubeThumbnail(video['url']);
+
+            return GestureDetector(
+              onTap: () async {
+                final url = video['url'];
+                if (url != null && await canLaunchUrl(Uri.parse(url))) {
+                  await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+                } else {
+                  throw 'Could not launch $url';
+                }
+              },
+              child: Card(
+                color: Colors.white,
+                margin: EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Dynamic thumbnail from YouTube
+                    if (thumbnailUrl != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                        child: Image.network(
+                          thumbnailUrl,
+                          height: 180,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
                         ),
-                        const SizedBox(height: 6),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.visibility, size: 16, color: Colors.grey),
-                            const SizedBox(width: 5),
-                            Text(
-                              '1.2M views',
-                              style: const TextStyle(color: Colors.grey, fontSize: 14),
-                            ),
-                            const Spacer(),
-                            const Icon(Icons.access_time, size: 16, color: Colors.grey),
-                            const SizedBox(width: 5),
-                            Text(
-                              '10:25',
-                              style: const TextStyle(color: Colors.grey, fontSize: 14),
-                            ),
-                          ],
+                      )
+                    else
+                      SizedBox.shrink(),
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        video['title'] ?? 'Unknown Video',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },
