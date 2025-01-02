@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:voiceforher/utils/constants.dart';
 
 class ImageRecognition extends StatefulWidget {
   const ImageRecognition({Key? key}) : super(key: key);
@@ -14,9 +16,10 @@ class ImageRecognition extends StatefulWidget {
 class _ImageRecognitionState extends State<ImageRecognition> {
   File? _image;
   String _result = '';
+  final ImagePicker _picker = ImagePicker();
 
-  Future<void> _getImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+  Future<void> _getImage(ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
 
     setState(() {
       if (pickedFile != null) {
@@ -27,24 +30,72 @@ class _ImageRecognitionState extends State<ImageRecognition> {
     });
   }
 
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take Photo'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _getImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _getImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _recognizeImage() async {
     if (_image == null) {
       return;
     }
 
     try {
-      var request = http.MultipartRequest('POST', Uri.parse('http://61.1.174.144:5000/recognize'));
+      String baseurl = Constants.baseUrl;
+      var request = http.MultipartRequest('POST', Uri.parse('https://voiceforher-backend.vercel.app/recognize-face'));
       request.files.add(await http.MultipartFile.fromPath('image', _image!.path));
 
       var response = await request.send();
-
       if (response.statusCode == 200) {
         final responseString = await response.stream.bytesToString();
+        print(responseString);
         Map<String, dynamic> data = jsonDecode(responseString);
+        print(data);
 
-        setState(() {
-          _result = data['matched_names'].join(', ');
-        });
+        // Check if there are matched faces
+        if (data['matchedFaces'] != null && data['matchedFaces'].isNotEmpty) {
+          // Extract the matched face details
+          var matchedFace = data['matchedFaces'][0];
+          String name = matchedFace['NAME'];
+          String branch = matchedFace['BRANCH'];
+          String email = matchedFace['EMAIL_ADDRESS'];
+          String phone = matchedFace['PHONE_NUMBER'];
+          String year = matchedFace['YEAR'];
+
+          // Update the result with the extracted details
+          setState(() {
+            _result = 'Name: $name\nBranch: $branch\nEmail: $email\nPhone: $phone\nYear: $year';
+          });
+        } else {
+          setState(() {
+            _result = 'No matched faces found.';
+          });
+        }
       } else {
         setState(() {
           _result = 'Error: ${response.statusCode}';
@@ -56,6 +107,7 @@ class _ImageRecognitionState extends State<ImageRecognition> {
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +127,7 @@ class _ImageRecognitionState extends State<ImageRecognition> {
               ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _getImage,
+              onPressed: _showImageSourceDialog,
               child: const Text('Select Image'),
             ),
             const SizedBox(height: 20),

@@ -297,7 +297,6 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
       },
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
