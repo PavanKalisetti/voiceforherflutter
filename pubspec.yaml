@@ -65,6 +65,9 @@ dev_dependencies:
   flutter_background_service:
   flutter_local_notifications:
   android_intent_plus:
+  mime:
+  http_parser:
+  shimmer:
 #  flutter_phone_direct_caller:
 
 # For information on the generic Dart part of this file, see the

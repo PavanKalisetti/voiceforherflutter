@@ -80,11 +80,24 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mitra AI Chatbot'),
-        backgroundColor: Colors.deepPurpleAccent,
-        centerTitle: true,
-        foregroundColor: Colors.white,
+        appBar : PreferredSize(
+        preferredSize: const Size.fromHeight(80.0),
+        child: AppBar(
+          flexibleSpace: ClipPath(
+            clipper: CurvedAppBarClipper(),
+            child: Container(
+              color: Colors.deepPurpleAccent,
+            ),
+          ),
+          title: const Text(
+            'Mitra AI Chatbot',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          iconTheme: const IconThemeData(color: Colors.white),
+          elevation: 0,
+        ),
       ),
       body: Column(
         children: [
@@ -182,4 +195,20 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+}
+
+class CurvedAppBarClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 30);
+    path.quadraticBezierTo(
+        size.width / 2, size.height, size.width, size.height - 30);
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

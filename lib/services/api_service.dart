@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:voiceforher/utils/constants.dart';
+import '../models/counselling_request.dart';
 import '../models/user_model.dart';
 
 class ApiService {
@@ -56,6 +57,38 @@ class ApiService {
     }
   }
 
+  // Future<List<CounsellingRequest>> fetchCounsellingRequests(String token) async {
+  //   final response = await http.get(
+  //     Uri.parse('$baseUrl/counselling/getAllcounselling'),
+  //     headers: {
+  //       'Authorization': 'Bearer $token',
+  //     },
+  //   );
+  //
+  //   if (response.statusCode == 200) {
+  //     List<dynamic> data = json.decode(response.body)['data'];
+  //     return data.map((json) => CounsellingRequest.fromJson(json)).toList();
+  //   } else {
+  //     throw Exception('Failed to load counselling requests');
+  //   }
+  // }
+  //
+  // Future<void> updateCounsellingStatus(String id, String status, String token) async {
+  //   final response = await http.put(
+  //     Uri.parse('$baseUrl/counselling/status/$id'),
+  //     headers: {
+  //       'Authorization': 'Bearer $token',
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: json.encode({
+  //       'status': status,
+  //     }),
+  //   );
+  //
+  //   if (response.statusCode != 200) {
+  //     throw Exception('Failed to update status');
+  //   }
+  // }
 
   // Function to raise a complaint
   Future<void> raiseComplaint({

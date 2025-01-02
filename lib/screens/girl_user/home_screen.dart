@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:voiceforher/screens/authority/AllCounselling.dart';
 import 'package:voiceforher/screens/authority/AllUserProfiles.dart';
 import 'package:voiceforher/screens/girl_user/file_upload_screen.dart';
 import 'package:voiceforher/screens/girl_user/raiseComplaint.dart';
 import 'package:voiceforher/screens/girl_user/requesting_help.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../ComplaintScreen.dart';
+import '../ImageRecog.dart';
 import '../ProfileScreen.dart';
 import 'ChatBoxScreen.dart';
 import 'EmergencyContactsPage.dart';
 import 'awarenessPage.dart';
 import 'counselling.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Homescreen extends StatefulWidget {
   final bool isAuthority;
@@ -40,6 +43,7 @@ class _HomescreenState extends State<Homescreen> {
   void initState() {
     super.initState();
     _requestLocationPermission();
+    _requestPermissions();
 
 
 
@@ -47,33 +51,50 @@ class _HomescreenState extends State<Homescreen> {
 
     // Define pages and navigation items using dummy data
     if (widget.isAuthority) {
+
       _pages = [
         ComplaintListScreen(),
         AllUserProfileScreen(),
-        ChatScreen(),
+        CounsellingRequestsScreen(),
         ProfileScreen(),
       ];
 
       _navItems = const [
         BottomNavigationBarItem(icon: Icon(Icons.girl), label: 'Complaint'),
         BottomNavigationBarItem(icon: Icon(Icons.supervised_user_circle), label: 'Profiles'),
-        BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chats'),
+        BottomNavigationBarItem(icon: Icon(Icons.group), label: 'Counselling'),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ];
     } else {
       _pages = [
         HomePage(),
-        NotificationsInApp(),
+        ImageRecognition(),
         ChatScreen(),
         ProfileScreen(),
       ];
 
       _navItems = const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notification'),
+        BottomNavigationBarItem(icon: Icon(Icons.perm_identity), label: 'faceRecoginition'),
         BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chats'),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ];
+    }
+  }
+
+  // Function to request SMS and Phone Call permissions
+  Future<void> _requestPermissions() async {
+    // Request SMS and Phone permissions
+    PermissionStatus smsStatus = await Permission.sms.request();
+    PermissionStatus callStatus = await Permission.phone.request();
+    PermissionStatus locationStatus = await Permission.location.request();
+
+    if (smsStatus.isGranted && callStatus.isGranted) {
+      // Permissions granted
+      print("SMS and Phone Call permissions granted");
+    } else {
+      // Permissions denied
+      print("SMS and/or Phone Call permissions denied");
     }
   }
 
@@ -181,6 +202,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         curve: Curves.easeInOut,
       ),
     );
+  }
+    @override
+  void dispose() {
+    // Dispose of the controller to avoid the warning
+    _controller.dispose();
+    super.dispose();
   }
 
 

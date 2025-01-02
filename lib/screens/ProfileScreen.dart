@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/UserProfileModel.dart';
 import '../services/UserService.dart';
 import 'Login_page.dart'; // Replace with your actual login screen import
+import 'package:shimmer/shimmer.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -40,7 +41,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _confirmLogout(BuildContext context) {
     showDialog(
-
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
@@ -74,17 +74,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text("Profile"),
-      //   backgroundColor: Colors.indigo,
-      //   foregroundColor: Colors.white,
-      //   actions: [
-      //     IconButton(
-      //       icon: const Icon(Icons.logout),
-      //       onPressed: () => _confirmLogout(context),
-      //     ),
-      //   ],
-      // ),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: SafeArea(
@@ -121,7 +110,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         future: userProfile,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: Colors.deepPurpleAccent,));
+            return Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: size.height * 0.01,
+                horizontal: size.width * 0.04,
+              ),
+              child: Column(
+                children: [
+                  _buildShimmerProfileHeader(size),
+                  SizedBox(height: size.height * 0.02),
+                  _buildShimmerDetailsCard(size),
+                  SizedBox(height: size.height * 0.02),
+                  _buildShimmerEmergencyContacts(size),
+                ],
+              ),
+            );
           } else if (snapshot.hasError) {
             return Center(
               child: Text(
@@ -145,15 +148,116 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     SizedBox(height: size.height * 0.02),
                     _buildDetailsCard(user, size),
                     SizedBox(height: size.height * 0.02),
-                    _buildEmergencyContacts(user.defaultEmergencyContacts, "Default Emergency Contacts", size),
-                    SizedBox(height: size.height * 0.02),
-                    _buildEmergencyContacts(user.emergencyContacts, "Emergency Contacts", size),
+                    if (user.userType == "girlUser") ...[
+                      _buildEmergencyContacts(user.defaultEmergencyContacts, "Default Emergency Contacts", size),
+                      SizedBox(height: size.height * 0.02),
+                      _buildEmergencyContacts(user.emergencyContacts, "Emergency Contacts", size),
+                    ],
+
                   ],
                 ),
               ),
             );
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildShimmerProfileHeader(Size size) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: size.width * 0.12,
+            backgroundColor: Colors.grey[300],
+          ),
+          SizedBox(height: size.height * 0.01),
+          Container(
+            height: size.height * 0.02,
+            width: size.width * 0.4,
+            color: Colors.grey[300],
+          ),
+          SizedBox(height: size.height * 0.01),
+          Container(
+            height: size.height * 0.015,
+            width: size.width * 0.3,
+            color: Colors.grey[300],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerDetailsCard(Size size) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Card(
+        color: Colors.white,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: Padding(
+          padding: EdgeInsets.all(size.width * 0.04),
+          child: Column(
+            children: List.generate(
+              4,
+                  (index) => Padding(
+                padding: EdgeInsets.symmetric(vertical: size.height * 0.008),
+                child: Container(
+                  height: size.height * 0.02,
+                  width: double.infinity,
+                  color: Colors.grey[300],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerEmergencyContacts(Size size) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Card(
+        color: Colors.white,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: Padding(
+          padding: EdgeInsets.all(size.width * 0.04),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List.generate(
+              3,
+                  (index) => Padding(
+                padding: EdgeInsets.symmetric(vertical: size.height * 0.01),
+                child: Row(
+                  children: [
+                    Container(
+                      height: size.width * 0.05,
+                      width: size.width * 0.05,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    SizedBox(width: size.width * 0.04),
+                    Expanded(
+                      child: Container(
+                        height: size.height * 0.02,
+                        color: Colors.grey[300],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -209,10 +313,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-
           Flexible(
             child: Text(
-
               title,
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: size.width * 0.04),
             ),

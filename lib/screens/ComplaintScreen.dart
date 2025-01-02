@@ -13,6 +13,7 @@ import 'ChatWithAuthority.dart';
 import 'girl_user/raiseComplaint.dart';
 // import '../services/ComplaintServices.dart';
 // import 'ChatWithAuthority.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ComplaintListScreen extends StatefulWidget {
   const ComplaintListScreen({Key? key}) : super(key: key);
@@ -64,39 +65,37 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
     }
   }
 
-  void _showComplaintDetails(Complaint complaint) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text(
-          complaint.subject,
-          style: const TextStyle(color: Colors.deepPurpleAccent,fontSize: 20),
-        ),
-
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Category: ${complaint.category}"),
-            SizedBox(height: 2,),
-            Text("Location: ${complaint.location}"),
-            Text(
-                "Date: ${complaint.dateOfIncident.toLocal().toString().split(' ')[0]}"),
-            SizedBox(height: 2,),
-            Text("Description: ${complaint.description}"),
-            SizedBox(height: 2,),
-            if (complaint.isAnonymous)
-              const Text(
-                "Raised anonymously",
-                style: TextStyle(color: Colors.deepPurpleAccent),
-              ),
-          ],
-        ),
-        actions: [
+ void _showComplaintDetails(Complaint complaint) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: Colors.white,
+      title: Text(
+        complaint.subject,
+        style: const TextStyle(color: Colors.deepPurpleAccent, fontSize: 20),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Category: ${complaint.category}"),
+          SizedBox(height: 2),
+          Text("Location: ${complaint.location}"),
+          Text("Date: ${complaint.dateOfIncident.toLocal().toString().split(' ')[0]}"),
+          SizedBox(height: 2),
+          Text("Description: ${complaint.description}"),
+          SizedBox(height: 2),
+          if (complaint.isAnonymous)
+            const Text(
+              "Raised anonymously",
+              style: TextStyle(color: Colors.deepPurpleAccent),
+            ),
+        ],
+      ),
+      actions: [
+        if (!complaint.status) // Only show chat option if not solved
           TextButton(
             onPressed: () {
-              // Handle chat action
               String? email = complaint.email;
               if (email != null) {
                 String hashedEmail = hashEmail(email);
@@ -107,74 +106,136 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
                   userid = "officerId";
                   officerid = hashedEmail;
                 }
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ChatPage(userId: userid, authorityId: officerid, hashedemail: hashedEmail,)));
-
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ChatPage(
+                              userId: userid,
+                              authorityId: officerid,
+                              hashedemail: hashedEmail,
+                            ))); 
               }
             },
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.chat, color: Colors.deepPurpleAccent),
                 SizedBox(width: 4),
-                Text(
-                  "Chat with authority",
-                  style: TextStyle(color: Colors.black),
-                ),
+                if (isAuthority)
+                  Text("Chat with girlUser", style: TextStyle(color: Colors.black)),
+                if (!isAuthority)
+                  Text("Chat with Authority", style: TextStyle(color: Colors.black)),
               ],
             ),
           ),
-          if (!isAuthority && !complaint.status)
+        if (!isAuthority && !complaint.status) // "Mark as Solved" button only for unsolved complaints
+          TextButton(
+            onPressed: () async {
+              final prefs = await SharedPreferences.getInstance();
+              final token = prefs.getString('token');
+              final response = await http.put(
+                Uri.parse('${Constants.baseUrl}/complaint/complaints/${complaint.id}/mark-as-solved'),
+                headers: {
+                  'Authorization': 'Bearer $token',
+                  'Content-Type': 'application/json',
+                },
+              );
 
-            TextButton(
-              onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                final token = prefs.getString('token');
-                final response = await http.put(
-                  Uri.parse('${Constants.baseUrl}/complaint/complaints/${complaint.id}/mark-as-solved'),
-                  headers: {
-                    'Authorization': 'Bearer $token', // Include the user's token
-                    'Content-Type': 'application/json',
-                  },
+              if (response.statusCode == 200) {
+                setState(() {
+                  complaint.status = true; // Update the local state
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Complaint marked as solved!')),
                 );
-
-                print("debug testing ${response.body}");
-
-                if (response.statusCode == 200) {
-                  setState(() {
-                    complaint.status = true; // Update the local state
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Complaint marked as solved!')),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to mark complaint as solved')),
-                  );
-                }
-              },
-              child: const Row(
-                children: [
-                  Icon(Icons.edit, color: Colors.deepPurpleAccent),
-                  SizedBox(width: 4),
-                  Text(
-                    "Mark as Solved",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ],
-              ),
-            ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                "Close",
-                style: TextStyle(color: Colors.deepPurpleAccent),
-              ),
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to mark complaint as solved')),
+                );
+              }
+              Navigator.of(context).pop();
+            },
+            child: const Row(
+              children: [
+                Icon(Icons.edit, color: Colors.deepPurpleAccent),
+                SizedBox(width: 4),
+                Text("Mark as Solved", style: TextStyle(color: Colors.black)),
+              ],
             ),
           ),
-        ],
-      ),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("Close", style: TextStyle(color: Colors.deepPurpleAccent)),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+  Widget _buildShimmerEffect() {
+    return ListView(
+      children: [
+        Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Container(
+              height: 20,
+              width: MediaQuery.of(context).size.width / 2,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        ...List.generate(4, (index) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Container(
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          );
+        }),
+        Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Container(
+              height: 20,
+              width: MediaQuery.of(context).size.width / 2,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        ...List.generate(4, (index) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Container(
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          );
+        }),
+      ],
     );
   }
 
@@ -237,8 +298,6 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -253,7 +312,7 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
           ),
           title: const Text(
             'Complaint Box',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
           backgroundColor: Colors.transparent,
@@ -265,9 +324,8 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
         future: _complaintsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: Colors.deepPurpleAccent),
-            );
+            // Shimmer loading effect
+            return _buildShimmerEffect();
           } else if (snapshot.hasError) {
             return Center(
               child: Text(
@@ -320,7 +378,8 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: !isAuthority
+          ? FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
@@ -335,9 +394,12 @@ class _ComplaintListScreenState extends State<ComplaintListScreen> {
         },
         backgroundColor: Colors.deepPurpleAccent,
         child: const Icon(Icons.add, color: Colors.white),
-      ),
+      )
+          : null,
     );
   }
+
+
 }
 
 class CurvedAppBarClipper extends CustomClipper<Path> {
@@ -345,7 +407,8 @@ class CurvedAppBarClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     final path = Path();
     path.lineTo(0, size.height - 30);
-    path.quadraticBezierTo(size.width / 2, size.height, size.width, size.height - 30);
+    path.quadraticBezierTo(
+        size.width / 2, size.height, size.width, size.height - 30);
     path.lineTo(size.width, 0);
     path.close();
     return path;
@@ -354,4 +417,3 @@ class CurvedAppBarClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
-

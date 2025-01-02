@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:voiceforher/appbar.dart';
 
 class AwarenessPage extends StatelessWidget {
   final List<Map<String, String>> videos = [
@@ -37,11 +38,24 @@ class AwarenessPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Awareness Videos', style: TextStyle(color: Colors.white)),
-        centerTitle: true,
-        backgroundColor: Colors.deepPurpleAccent,
-        iconTheme: IconThemeData(color: Colors.white),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80.0),
+        child: AppBar(
+          flexibleSpace: ClipPath(
+            clipper: CurvedAppBarClipper(),
+            child: Container(
+              color: Colors.deepPurpleAccent,
+            ),
+          ),
+          title: const Text(
+            'Awareness videos',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          iconTheme: const IconThemeData(color: Colors.white),
+          elevation: 0,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -104,3 +118,6 @@ class AwarenessPage extends StatelessWidget {
     );
   }
 }
+
+
+
