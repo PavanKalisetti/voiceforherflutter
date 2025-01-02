@@ -23,9 +23,11 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
   Future<void> getFile({
     required String id,
     required String type,
-    required String token,
   }) async {
-    final url = "http://yourbackend.com/api/v1/files/$id/$type";
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    String baseurl = Constants.baseUrl;
+    final url = "$baseurl/files/$id/$type";
     final response = await http.get(Uri.parse(url), headers: {
       'Authorization': 'Bearer $token',
     });

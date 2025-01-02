@@ -66,7 +66,7 @@ class _ImageRecognitionState extends State<ImageRecognition> {
     }
 
     try {
-      String baseurl = Constants.baseUrl;
+
       var request = http.MultipartRequest('POST', Uri.parse('https://voiceforher-backend.vercel.app/recognize-face'));
       request.files.add(await http.MultipartFile.fromPath('image', _image!.path));
 

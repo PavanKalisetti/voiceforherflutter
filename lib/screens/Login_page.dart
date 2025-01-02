@@ -101,160 +101,158 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: ColoredBox(
-        color: Colors.white,
-        child:Stack(
-          children: [
+      body: Stack(
+        children: [
 
-            CustomPaint(
-              size: Size(MediaQuery.of(context).size.width, 150),
-              painter: CurvedAppBarPainter(),
-            ),
+          CustomPaint(
+            size: Size(MediaQuery.of(context).size.width, 150),
+            painter: CurvedAppBarPainter(),
+          ),
 
-            Positioned(
-              top: 60,
-              left: 0,
-              right: 0,
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  "Login",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+          Positioned(
+            top: 60,
+            left: 0,
+            right: 0,
+            child: Align(
+              alignment: Alignment.center,
+              child: Text(
+                "Login",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
             ),
-            Center(
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 150),
+            child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min, // Ensures the form doesn't take up too much space
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Email Field
-                        TextFormField(
-                          controller: _emailController,
-                          decoration: InputDecoration(
-                            labelText: "Email",
-                            labelStyle: TextStyle(color: Colors.black),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide(color: Colors.deepPurpleAccent),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide(color: Colors.deepPurpleAccent),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min, // Ensures the form doesn't take up too much space
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Email Field
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: "Email",
+                          labelStyle: TextStyle(color: Colors.black),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide(color: Colors.deepPurpleAccent),
                           ),
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Email is required";
-                            }
-                            if (!RegExp(r'^\S+@\S+\.\S+$').hasMatch(value)) {
-                              return "Enter a valid email";
-                            }
-                            return null;
-                          },
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide(color: Colors.deepPurpleAccent),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                         ),
-                        SizedBox(height: 16),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Email is required";
+                          }
+                          if (!RegExp(r'^\S+@\S+\.\S+$').hasMatch(value)) {
+                            return "Enter a valid email";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16),
 
-                        // Password Field
-                        TextFormField(
-                          controller: _passwordController,
-                          decoration: InputDecoration(
-                            labelText: "Password",
-                            labelStyle: TextStyle(color: Colors.black),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide(color: Colors.deepPurpleAccent),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide(color: Colors.deepPurpleAccent),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _isPasswordHidden ? Icons.visibility_off : Icons.visibility,
-                                color: Colors.deepPurpleAccent,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _isPasswordHidden = !_isPasswordHidden;
-                                });
-                              },
-                            ),
+                      // Password Field
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          labelStyle: TextStyle(color: Colors.black),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide(color: Colors.deepPurpleAccent),
                           ),
-                          obscureText: _isPasswordHidden,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Password is required";
-                            }
-                            if (value.length < 8) {
-                              return "Password must be at least 8 characters";
-                            }
-                            return null;
-                          },
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide(color: Colors.deepPurpleAccent),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPasswordHidden ? Icons.visibility_off : Icons.visibility,
+                              color: Colors.deepPurpleAccent,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordHidden = !_isPasswordHidden;
+                              });
+                            },
+                          ),
                         ),
-                        SizedBox(height: 20),
+                        obscureText: _isPasswordHidden,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Password is required";
+                          }
+                          if (value.length < 8) {
+                            return "Password must be at least 8 characters";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 20),
 
-                        // Login Button
-                        _isLoading
-                            ? Center(child: CircularProgressIndicator())
-                            : ElevatedButton(
-                          onPressed: () {
-                            _login();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurpleAccent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            padding: EdgeInsets.symmetric(vertical: 15),
+                      // Login Button
+                      _isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : ElevatedButton(
+                        onPressed: () {
+                          _login();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurpleAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
                           ),
-                          child: Text(
-                            "Login",
-                            style: TextStyle(fontSize: 18, color: Colors.white),
-                          ),
+                          padding: EdgeInsets.symmetric(vertical: 15),
                         ),
-                        SizedBox(height: 20),
+                        child: Text(
+                          "Login",
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ),
+                      SizedBox(height: 20),
 
-                        // Sign Up Option
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Don't have an account? "),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => RegisterScreen()));
-                                _navigateToRegistration;
-                              },
-                              child: Text(
-                                "Sign Up",
-                                style: TextStyle(color: Colors.deepPurpleAccent),
-                              ),
+                      // Sign Up Option
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Don't have an account? "),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => RegisterScreen()));
+                              _navigateToRegistration;
+                            },
+                            child: Text(
+                              "Sign Up",
+                              style: TextStyle(color: Colors.deepPurpleAccent),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:intl/intl.dart'; // For timestamp formatting
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '/models/UserProfileModel.dart';
+import '/services/UserService.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -12,14 +15,43 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
-  final List<Map<String, Map<String, dynamic>>> _messages = []; // Stores chat history
+  final List<Map<String, Map<String, dynamic>>> _messages = [];
   bool _isLoading = false;
+  String? _userName; // To store the user's name
 
   // Initialize the GenerativeModel
   final model = GenerativeModel(
     model: 'gemini-1.5-flash',
     apiKey: 'AIzaSyAhLLGhk8WB8KERuuXFG6-w5C7FG--JYtc', // Replace with your actual API key
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserName();
+  }
+
+  // Fetch the user's name from the backend
+  Future<void> _fetchUserName() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token') ?? '';
+      if (token.isNotEmpty) {
+        final userProfile = await UserService.fetchUserProfile(token);
+        setState(() {
+          _userName = userProfile.username; // Adjust based on your model's property
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No token found, please login again.')),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching user name: $error')),
+      );
+    }
+  }
 
   // Format timestamp
   String _formatTimestamp(DateTime timestamp) {
@@ -47,9 +79,13 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     try {
-      // Get bot response using Google Generative AI model
-      String ExtraPrompt = "You are a caring and supportive virtual friend named Mitra. Your job is to uplift Sai Lakshmi, who may be feeling low or mentally overwhelmed. Use short, sweet, and encouraging responses. Always be positive, empathetic, and kind, making her feel valued and cared for. Keep the tone warm and supportive, like a close friend, and make the responses short and concise., the below one is the user prompt";
-      final response = await model.generateContent([Content.text(ExtraPrompt + content)]);
+      // Construct the dynamic prompt
+      String ExtraPrompt = _userName != null
+          ? "You are a caring and supportive virtual friend named Mitra. Your job is to uplift $_userName, who may be feeling low or mentally overwhelmed. Use short, sweet, and encouraging responses.Clarify all the user doubts. Make sure you give some tips on women safety for the user and how to tackle emergency situations . Use your database to clarify his/her doubts . Keep the tone warm and supportive, like a close friend, and make the responses short and concise. The below is the user prompt:"
+          : "You are a caring and supportive virtual friend named Mitra. Your job is to uplift the user. Use short, sweet, and encouraging responses. Always be positive, empathetic, and kind. The below is the user prompt:";
+
+      final response =
+      await model.generateContent([Content.text(ExtraPrompt + content)]);
 
       // Add bot's response to the chat
       setState(() {
@@ -80,7 +116,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar : PreferredSize(
+      appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80.0),
         child: AppBar(
           flexibleSpace: ClipPath(
@@ -121,7 +157,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     padding: const EdgeInsets.all(12),
                     constraints: const BoxConstraints(maxWidth: 250),
                     decoration: BoxDecoration(
-                      color: isUser ? Colors.deepPurpleAccent.shade100 : Colors.grey[300],
+                      color: isUser
+                          ? Colors.deepPurpleAccent.shade100
+                          : Colors.grey[300],
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(12),
                         topRight: const Radius.circular(12),
@@ -180,7 +218,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   icon: const Icon(Icons.send),
                   color: Colors.purple,
                   onPressed: () {
-
                     final content = _messageController.text.trim();
                     if (content.isNotEmpty) {
                       sendMessage(content);

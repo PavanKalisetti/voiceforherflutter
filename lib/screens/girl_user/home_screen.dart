@@ -178,6 +178,7 @@ class _HomescreenState extends State<Homescreen> {
     );
   }
 }
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -190,7 +191,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       duration: const Duration(seconds: 1),
       vsync: this,
@@ -203,19 +203,17 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ),
     );
   }
-    @override
+
+  @override
   void dispose() {
-    // Dispose of the controller to avoid the warning
     _controller.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final textScaleFactor = MediaQuery.of(context).textScaleFactor;
 
     return Scaffold(
       appBar: PreferredSize(
@@ -292,7 +290,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   Text(
                     'Emergency Needed?',
                     style: TextStyle(
-                      fontSize: screenHeight * 0.025 * textScaleFactor,
+                      fontSize: screenHeight * 0.025,
                       fontWeight: FontWeight.bold,
                       color: Colors.deepPurpleAccent,
                     ),
@@ -301,7 +299,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   Text(
                     'Not Sure What to do?',
                     style: TextStyle(
-                      fontSize: screenHeight * 0.02 * textScaleFactor,
+                      fontSize: screenHeight * 0.02,
                       color: Colors.deepPurpleAccent,
                     ),
                   ),
@@ -321,14 +319,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     mainAxisSpacing: 15,
                     physics: NeverScrollableScrollPhysics(),
                     children: [
-                      _buildCircularButton(context, Icons.location_on, 'Awareness',
-                          AwarenessPage(), screenHeight, textScaleFactor),
-                      _buildCircularButton(context, Icons.group, 'Counselling',
-                          CounsellingPage(), screenHeight, textScaleFactor),
-                      _buildCircularButton(context, Icons.report, 'Complaints',
-                          ComplaintListScreen(), screenHeight, textScaleFactor),
-                      _buildCircularButton(context, Icons.contacts, 'Contacts',
-                          EmergencyContactsScreen(), screenHeight, textScaleFactor),
+                      _buildCircularButton(
+                          context, Icons.location_on, 'Awareness', AwarenessPage()),
+                      _buildCircularButton(
+                          context, Icons.group, 'Counselling', CounsellingPage()),
+                      _buildCircularButton(
+                          context, Icons.report, 'Complaints', ComplaintListScreen()),
+                      _buildCircularButton(
+                          context, Icons.contacts, 'Contacts', EmergencyContactsScreen()),
                     ],
                   ),
                 );
@@ -340,8 +338,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildCircularButton(BuildContext context, IconData icon, String label,
-      Widget page, double screenHeight, double textScaleFactor) {
+  Widget _buildCircularButton(
+      BuildContext context, IconData icon, String label, Widget page) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -365,7 +365,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           Text(
             label,
             style: TextStyle(
-              fontSize: screenHeight * 0.02 * textScaleFactor,
+              fontSize: screenHeight * 0.02,
               fontWeight: FontWeight.bold,
               color: Colors.deepPurpleAccent,
             ),
@@ -375,9 +375,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 }
-
-
-
 
 class CurvedAppBarClipper extends CustomClipper<Path> {
   @override
@@ -393,30 +390,3 @@ class CurvedAppBarClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
-// Dummy screen placeholders
-
-
-class ProfilesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Profiles Page')));
-  }
-}
-
-
-
-// class ProfileScreen extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(body: Center(child: Text('Profile Screen')));
-//   }
-// }
-
-class NotificationsInApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Notifications')));
-  }
-}
-
-
