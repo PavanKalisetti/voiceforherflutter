@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:voiceforher/models/faceRecog_model.dart';
 import 'package:voiceforher/utils/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ImageRecognition extends StatefulWidget {
   const ImageRecognition({Key? key}) : super(key: key);
@@ -29,6 +31,43 @@ class _ImageRecognitionState extends State<ImageRecognition> {
       }
     });
   }
+
+  Future<void> SendStudentData({
+    required FaceRecog complaint,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      // Convert Complaint object to a JSON-compatible map
+      final Map<String, dynamic> requestBody = complaint.toMap();
+
+      // Send the POST request
+      final response = await http.post(
+        Uri.parse('https://voiceforher-backend.vercel.app/recognize-face'),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      print("Response Status: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+
+      // Handle response
+      if (response.statusCode == 201) {
+        print("Complaint raised successfully: ${jsonDecode(response.body)}");
+      } else {
+        print("Failed to raise complaint: ${response.body}");
+        throw Exception("Error: ${response.statusCode}");
+      }
+    } catch (error) {
+      print("An error occurred while raising the complaint: $error");
+      throw Exception("Failed to raise complaint");
+    }
+  }
+
 
   void _showImageSourceDialog() {
     showModalBottomSheet(
@@ -66,7 +105,6 @@ class _ImageRecognitionState extends State<ImageRecognition> {
     }
 
     try {
-
       var request = http.MultipartRequest('POST', Uri.parse('https://voiceforher-backend.vercel.app/recognize-face'));
       request.files.add(await http.MultipartFile.fromPath('image', _image!.path));
 
@@ -86,6 +124,24 @@ class _ImageRecognitionState extends State<ImageRecognition> {
           String email = matchedFace['EMAIL_ADDRESS'];
           String phone = matchedFace['PHONE_NUMBER'];
           String year = matchedFace['YEAR'];
+
+          // Convert the matched face map to a FaceRecog object
+          FaceRecog faceRecog = FaceRecog(
+            branch: branch,
+            email: email,
+            gender: matchedFace['GENDER'],
+            idNumber: matchedFace['ID_NUMBER'],
+            name: name,
+            phoneNumber: phone,
+            year: year,
+          );
+
+          try {
+            print("Debugging SendStudentData call with: $faceRecog");
+            await SendStudentData(complaint: faceRecog);
+          } catch (e) {
+            print(e);
+          }
 
           // Update the result with the extracted details
           setState(() {
@@ -107,6 +163,7 @@ class _ImageRecognitionState extends State<ImageRecognition> {
       });
     }
   }
+
 
 
   @override

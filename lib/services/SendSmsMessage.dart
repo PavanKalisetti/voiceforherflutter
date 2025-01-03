@@ -14,15 +14,28 @@ class SendSmsMessage {
           'Emergency! I am at https://www.google.com/maps?q=${position.latitude},${position.longitude}.';
 
       // Send the SMS
-      final success = await messenger.sendSMS(
-        phoneNumber: emergencyContacts[0]['phone'],
-        message: message,
-      );
+      // final success = await messenger.sendSMS(
+      //   phoneNumber: emergencyContacts[0]['phone'],
+      //   message: message,
+      // );
+      //
+      // if (success) {
+      //   print('Debug testing SMS sent successfully');
+      // } else {
+      //   print('Debug testing Failed to send SMS');
+      // }
+      // Iterate through the emergencyContacts and send an SMS to each contact
+      for (var contact in emergencyContacts) {
+        final success = await messenger.sendSMS(
+          phoneNumber: contact['phone'],
+          message: message,
+        );
 
-      if (success) {
-        print('Debug testing SMS sent successfully');
-      } else {
-        print('Debug testing Failed to send SMS');
+        if (success) {
+          print('Debug testing SMS sent successfully to ${contact['phone']}');
+        } else {
+          print('Debug testing Failed to send SMS to ${contact['phone']}');
+        }
       }
     } catch (e) {
       print('Debug testing Error sending SMS: $e');

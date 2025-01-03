@@ -68,6 +68,10 @@ dev_dependencies:
   mime:
   http_parser:
   shimmer:
+  video_player:
+  just_audio:
+
+
 
 #  flutter_phone_direct_caller:
 

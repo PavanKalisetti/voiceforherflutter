@@ -1,4 +1,4 @@
-import 'dart:convert';
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:voiceforher/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:file_picker/file_picker.dart';
 
 
 
@@ -129,17 +130,32 @@ class _FileUploadScreenState extends State<FileUploadScreen> {
 
 
   Future<void> _pickFile(String type) async {
-    final pickedFile = await _picker.pickImage(
-      source: type == 'image' ? ImageSource.gallery : ImageSource.camera,
-    );
+    XFile? pickedFile;
+    File? file;
+
+    if (type == 'image') {
+      pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    } else if (type == 'video') {
+      pickedFile = await _picker.pickVideo(source: ImageSource.camera);
+    } else if (type == 'audio') {
+      final result = await FilePicker.platform.pickFiles(type: FileType.audio);
+      if (result != null && result.files.single.path != null) {
+        file = File(result.files.single.path!);
+      }
+    }
+
     if (pickedFile != null) {
       setState(() {
         if (type == 'image') {
-          _imageFile = File(pickedFile.path);
+          _imageFile = File(pickedFile!.path);
         } else if (type == 'video') {
-          _videoFile = File(pickedFile.path);
-        } else {
-          _audioFile = File(pickedFile.path);
+          _videoFile = File(pickedFile!.path);
+        }
+      });
+    } else if (file != null) {
+      setState(() {
+        if (type == 'audio') {
+          _audioFile = file;
         }
       });
     }

@@ -68,6 +68,7 @@ class _HomescreenState extends State<Homescreen> {
     } else {
       _pages = [
         HomePage(),
+        // FileUploadScreen(),
         ImageRecognition(),
         ChatScreen(),
         ProfileScreen(),
